@@ -2,7 +2,7 @@
 
 ## What is Upsilon ?
 
-Upsilon is a C++ game engine, designed to make 2D puzzles. It uses the [SDL2](http://libsdl.org/) library and the [Luwra](https://github.com/vapourismo/luwra) Lua wrapper.
+Upsilon is a C++ game engine, designed to make 2D puzzles. It uses the [SDL2](http://libsdl.org/) library and the [Luwra](https://github.com/vapourismo/luwra) Lua wrapper. It is distributed under the GNU GPL license.
 
 Subgames are written in Lua. They have to be in the `subgames` folder.
 
