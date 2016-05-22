@@ -37,6 +37,10 @@ void Map::load_map(int new_num) {
 	state.loadStandardLibrary();
 	state["RGB"] = LUWRA_WRAP(rgb_serialize);
 	state["level"] = number;
+	state["map"] = luwra::FieldVector {};
+	if (state.runFile(map_directory+"map.lua") != 0)
+		fprintf(stderr, "Warning: Unable to open %s file.\n", (map_directory+"map.lua").c_str());
+	
 	if (state.runFile(filename) != 0) {
 		if (state.runFile(map_directory+"map1.lua") != 0) {
 			fprintf(stderr, "Error: Unable to open map file. Make sure at least the file map1.lua is in the %s directory.\n", map_directory.c_str());
@@ -54,19 +58,20 @@ void Map::load_map(int new_num) {
 	
 	luwra::Table map_table = state["map"];
 	
-	// Map_struct
-	map_struct.width = map_table["width"];
-	map_struct.height = map_table["height"];
-	map_struct.displayed_x = map_table["displayed_x"];
-	map_struct.displayed_y = map_table["displayed_y"];
-	if (map_table.has("pos_x") && map_table.has("pos_y")) {
-		map_struct.pos_x = map_table["pos_x"];
-		map_struct.pos_y = map_table["pos_y"];
-	} else {
-		map_struct.pos_x = map_struct.pos_y = 0;
-	}
+	/// Map_struct
 	
-	// Nodes
+	// pos_x and pos_y
+	if (map_table.has("pos_x"))
+		map_struct.pos_x = map_table["pos_x"];
+	else
+		map_struct.pos_x = 0;
+	
+	if (map_table.has("pos_y"))
+		map_struct.pos_y = map_table["pos_y"];
+	else
+		map_struct.pos_y = 0;
+	
+	// Nodes, width and height
 	if (!map_table.has("nodes")) {
 		fprintf(stderr, "Error: Unable to get map[nodes] table in Lua file %s.\n", filename.c_str());
 		exit(EXIT_FAILURE);
@@ -74,6 +79,17 @@ void Map::load_map(int new_num) {
 	luwra::Table nodes_table = map_table["nodes"];
 	
 	// Note: the Lua nodes table has form nodes[y][x] ; but I want the C++ nodes vector has form nodes[x][y].
+	for (map_struct.height = 0 ; nodes_table.has(map_struct.height+1) ; map_struct.height++);
+	if (map_struct.height == 0) {
+		fprintf(stderr, "Error: %s map height is 0\n", filename.c_str());
+		exit(EXIT_FAILURE);
+	}
+	for (map_struct.width = 0 ; nodes_table.template get<luwra::Table>(1).has(map_struct.width+1) ; map_struct.width++);
+	if (map_struct.width == 0) {
+		fprintf(stderr, "Error: %s map width is 0\n", filename.c_str());
+		exit(EXIT_FAILURE);
+	}
+	
 	nodes.resize(map_struct.width);
 	for (int i = 0 ; i < map_struct.width ; i++) {
 		nodes[i].resize(map_struct.height);
@@ -83,8 +99,24 @@ void Map::load_map(int new_num) {
 		}
 	}
 	
-	// Background
-	string background_str = map_table["background"];
+	// displayed_x and displayed_y
+	if (map_table.has("displayed_x"))
+		map_struct.displayed_x = map_table["displayed_x"];
+	else
+		map_struct.displayed_x = map_struct.width;
+	
+	if (map_table.has("displayed_y"))
+		map_struct.displayed_y = map_table["displayed_y"];
+	else
+		map_struct.displayed_y = map_struct.height;
+	
+	
+	/// Background
+	string background_str;
+	if (map_table.has("background"))
+		background_str = map_table.get<string>("background");
+	else
+		background_str = "_rgb255;255;255";
 	
 	Uint8 red = 0, green = 0, blue = 0;
 	if (rgb_deserialize(background_str, red, green, blue)) { // RGB ?
