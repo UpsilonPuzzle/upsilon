@@ -42,14 +42,9 @@ void Map::load_map(int new_num) {
 	state["RGB"] = LUWRA_WRAP(rgb_serialize);
 	state["level"] = number;
 	state["map"] = luwra::FieldVector {};
-	if (state.runFile(map_directory+"map.lua") != 0)
-		fprintf(stderr, "Warning: Unable to open %s file.\n", (map_directory+"map.lua").c_str());
-	
+	state.runFile(map_directory+"map.lua");
 	if (state.runFile(filename) != 0) {
-		if (state.runFile(map_directory+"map1.lua") != 0) {
-			fprintf(stderr, "Error: Unable to open map file. Make sure at least the file map1.lua is in the %s directory.\n", map_directory.c_str());
-			exit(EXIT_FAILURE);
-		} else {
+		if (state.runFile(map_directory+"map1.lua") == 0) {
 			number = 1;
 			printf("Info: Using file map1.lua as map file, because there is no %s file.\n",  filename.c_str());
 		}
