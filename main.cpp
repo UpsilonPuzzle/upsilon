@@ -22,6 +22,9 @@ void event_loop(Callbacks& callbacks, Map& map) {
                 	case SDL_KEYDOWN:
                 		callbacks.on_key_down(event.key.keysym.sym);
 				break;
+			case SDL_MOUSEBUTTONDOWN:
+				callbacks.on_click(event.button, map.get_map_struct().width, map.get_map_struct().height);
+				break;
 		}
 		map.draw();
 	}

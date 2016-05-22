@@ -28,6 +28,10 @@ Map::~Map() {
 	delete env;
 }
 
+Map_struct Map::get_map_struct() {
+	return map_struct;
+}
+
 void Map::load_map(int new_num) {
 	number = new_num;
 	

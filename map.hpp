@@ -43,6 +43,7 @@ class Map {
 	public:
 	Map(SDL_Window* window, const string subgame_name, int number = 1); // Constructor (SDL window, subgame name, map number)
 	~Map(); // Destructor
+	Map_struct get_map_struct();
 	void load_map(int new_num);
 	Env* load_env();
 	void draw(); // Draw the nodes
