@@ -17,7 +17,7 @@ upsilon.register_node("wall", {
 
 -- Callbacks
 local function move_mario(x, y)
-	local mario_pos = upsilon.get_node_pos("mario")[0]
+	local mario_pos = upsilon.get_node_pos("mario")[1]
 	local node = upsilon.get_node(mario_pos.x+x, mario_pos.y+y)
 	if node == "wall" then
 		return

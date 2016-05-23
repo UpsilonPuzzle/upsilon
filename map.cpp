@@ -238,7 +238,7 @@ string get_node(int x, int y) {
 }
 
 luwra::FieldVector get_node_pos(string name) {
-	luwra::FieldVector field_vector;
+	luwra::FieldVector field_vector { std::pair<int, luwra::FieldVector> {0, {{"x", 0}, {"y", 0}}} };
 	for (int x = 0 ; x < map_obj->nodes.size() ; x++) {
 		for (int y = 0 ; y < map_obj->nodes[x].size() ; y++) {
 			if (map_obj->nodes[x][y] == name)
@@ -248,7 +248,7 @@ luwra::FieldVector get_node_pos(string name) {
 	return field_vector;
 }
 luwra::FieldVector get_node_screen_pos(string name) {
-	luwra::FieldVector field_vector;
+	luwra::FieldVector field_vector { std::pair<int, luwra::FieldVector> {0, {{"x", 0}, {"y", 0}}} };
 	for (int x = map_obj->map_struct.pos_x ; x < map_obj->map_struct.width+map_obj->map_struct.pos_x ; x++) {
 		for (int y = map_obj->map_struct.pos_y ; y < map_obj->map_struct.height+map_obj->map_struct.pos_y ; y++) {
 			if (map_obj->nodes[x][y] == name)
