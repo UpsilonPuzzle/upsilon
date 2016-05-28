@@ -38,11 +38,12 @@ void register_at_exit(luwra::NativeFunction<void> lua_function);
 
 class Env {
 	public:
-	Env(SDL_Window* window, int displayed_x, int displayed_y, const string subgame_name); // Constructor
+	Env(SDL_Window* window, const string subgame_name); // Constructor
 	~Env(); // Destructor
 	void add_function(string name, lua_CFunction function); // Add a function to environment
 	void load();
 	void draw_node(const string name, const int x, const int y); // Draw a node at given position (in nodes number)
+	void update_dim(const int displayed_x, const int displayed_y);
 	
 	private:
 	const string subgame_name;

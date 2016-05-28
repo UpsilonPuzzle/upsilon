@@ -19,6 +19,8 @@ Map::Map(SDL_Window* window, const string subgame_name, int number) : window(win
 	
 	renderer = SDL_GetRenderer(window);
 	
+	load_env();
+	
 	load_map(number);
 }
 
@@ -110,6 +112,8 @@ void Map::load_map(int new_num) {
 	else
 		map_struct.displayed_y = map_struct.height;
 	
+	env->update_dim(map_struct.displayed_x, map_struct.displayed_y);
+	
 	
 	/// Background
 	string background_str;
@@ -134,8 +138,8 @@ void Map::load_map(int new_num) {
 	}
 }
 
-Env* Map::load_env() {
-	env = new Env(window, map_struct.displayed_x, map_struct.displayed_y, subgame_name);
+void Map::load_env() {
+	env = new Env(window, subgame_name);
 	ADD_FUNCTION(move_map_right);
 	ADD_FUNCTION(move_map_left);
 	ADD_FUNCTION(move_map_up);
@@ -149,6 +153,9 @@ Env* Map::load_env() {
 	ADD_FUNCTION(get_node_pos);
 	ADD_FUNCTION(get_node_screen_pos);
 	ADD_FUNCTION(next_map);
+}
+
+Env* Map::get_env() {
 	return env;
 }
 

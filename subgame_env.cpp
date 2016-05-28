@@ -65,14 +65,11 @@ void register_at_exit(luwra::NativeFunction<void> lua_function) {
 	env_obj->functions_at_exit.push_back(new function<void(void)>(lua_function));
 }
 
-Env::Env(SDL_Window* sdl_window, int displayed_x, int displayed_y, const string subgame_name) : subgame_name(subgame_name) {
+Env::Env(SDL_Window* sdl_window, const string subgame_name) : subgame_name(subgame_name) {
 	env_obj = this;
 	
 	window = sdl_window;
 	renderer = SDL_GetRenderer(window);
-	
-	width = WINDOW_WIDTH/displayed_x;
-	height = WINDOW_WIDTH/displayed_y;
 	
 	state.loadStandardLibrary();
 	
@@ -121,6 +118,16 @@ void Env::draw_node(const string name, const int x, const int y) {
 			registered_nodes[i]->draw(x, y);
 			return;
 		}
+	}
+}
+
+void Env::update_dim(const int displayed_x, const int displayed_y) {
+	width = WINDOW_WIDTH/displayed_x;
+	height = WINDOW_WIDTH/displayed_y;
+	
+	// Create again nodes textures	
+	for (int i = 0 ; i < registered_nodes.size() ; i++) {
+		registered_nodes[i]->create_texture(width, height, subgame_name);
 	}
 }
 

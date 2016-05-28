@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 	Load game
 	*/
 	Map map(window, string(argv[1])); // Load map
-	Env* env = map.load_env(); // Load subgame environment
+	Env* env = map.get_env();
 	Callbacks callbacks(env);
 	env->load();
 	map.draw();

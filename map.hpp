@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include <SDL2/SDL.h>
 
@@ -34,8 +35,8 @@ bool set_node(int x, int y, string new_name);
 
 string get_node(int x, int y);
 
-luwra::FieldVector get_node_pos(string name);
-luwra::FieldVector get_node_screen_pos(string name);
+map<int, map<string, int> > get_node_pos(string name);
+map<int, map<string, int> > get_node_screen_pos(string name);
 
 int next_map();
 
@@ -45,10 +46,12 @@ class Map {
 	~Map(); // Destructor
 	Map_struct get_map_struct();
 	void load_map(int new_num);
-	Env* load_env();
+	Env* get_env();
 	void draw(); // Draw the nodes
 	
 	private:
+	void load_env();
+	
 	const string subgame_name;
 	Map_struct map_struct;
 	Env* env; // The subgame environment pointer
@@ -71,8 +74,8 @@ class Map {
 	friend bool remove_node(int x, int y);
 	friend bool set_node(int x, int y, string new_name);
 	friend string get_node(int x, int y);
-	friend luwra::FieldVector get_node_pos(string name);
-	friend luwra::FieldVector get_node_screen_pos(string name);
+	friend map<int, map<string, int> > get_node_pos(string name);
+	friend map<int, map<string, int> > get_node_screen_pos(string name);
 	friend int next_map();
 };
 
