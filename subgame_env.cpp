@@ -76,7 +76,7 @@ Env::Env(SDL_Window* sdl_window, int displayed_x, int displayed_y, const string 
 	
 	state.loadStandardLibrary();
 	
-	state[UPSILON_TABLE] = luwra::FieldVector {};
+	state[UPSILON_TABLE] = luwra::MemberMap {};
 }
 
 Env::~Env() {
@@ -100,7 +100,7 @@ void Env::load() {
 	add_function("register_node", LUWRA_WRAP(register_node));
 	add_function("register_at_exit", LUWRA_WRAP(register_at_exit));
 	
-	if (state.runFile("subgames/"+subgame_name+"/"+INIT_FILE) != 0) {
+	if (state.runFile(("subgames/"+subgame_name+"/"+INIT_FILE).c_str()) != 0) {
 		fprintf(stderr, "Error: Unable to load file %s.\n", ("subgames/"+subgame_name+"/"+INIT_FILE).c_str());
 		exit(EXIT_FAILURE);
 	}

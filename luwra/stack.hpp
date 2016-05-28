@@ -9,6 +9,7 @@
 
 #include "common.hpp"
 #include "types.hpp"
+#include "internal.hpp"
 
 #include <cassert>
 #include <utility>
@@ -108,37 +109,25 @@ typename internal::Layout<S>::ReturnType direct(State* state, F&& hook, A&&... a
 }
 
 /**
- * Synonym for [direct](@ref direct) with a function pointer which lets you omit all template parameters.
- * The stack layout will be inferred using the signature of the given function pointer.
+ * A version of [direct](@ref direct) which tries to infer the stack layout from the given
+ * `Callable`. It allows you to omit the template parameters since the compiler is able to infer the
+ * parameter and return types.
  */
-template <typename R, typename... A> static inline
-R apply(State* state, int pos, R (* fun)(A...)) {
-	return direct<R(A...)>(state, pos, fun);
+template <typename T> static inline
+typename internal::CallableInfo<T>::ReturnType apply(State* state, int pos, T&& obj) {
+	return internal::CallableInfo<T>::template RelaySignature<internal::Layout>::direct(
+		state,
+		pos,
+		std::forward<T>(obj)
+	);
 }
 
 /**
- * Same as `apply(state, 1, fun)`.
+ * Same as `apply(state, 1, obj)`.
  */
-template <typename R, typename... A> static inline
-R apply(State* state, R (* fun)(A...)) {
-	return apply(state, 1, fun);
-}
-
-/**
- * Synonym for [direct](@ref direct) with a function object which lets you omit all template parameters.
- * The stack layout will be inferred using the template parameter to your `std::function` object.
- */
-template <typename R, typename... A> static inline
-R apply(State* state, int pos, const std::function<R(A...)>& fun) {
-	return internal::Layout<R(A...)>::direct(state, pos, fun);
-}
-
-/**
- * Same as `apply(state, 1, fun)`.
- */
-template <typename R, typename... A> static inline
-R apply(State* state, const std::function<R(A...)>& fun) {
-	return apply(state, 1, fun);
+template <typename T> static inline
+typename internal::CallableInfo<T>::ReturnType apply(State* state, T&& obj) {
+	return apply(state, 1, std::forward<T>(obj));
 }
 
 namespace internal {

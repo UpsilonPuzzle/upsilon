@@ -2,6 +2,7 @@
 #include <sstream>
 #include <cstdio>
 #include <cstdlib>
+#include <map>
 
 #include <SDL2/SDL_image.h>
 
@@ -41,10 +42,10 @@ void Map::load_map(int new_num) {
 	state.loadStandardLibrary();
 	state["RGB"] = LUWRA_WRAP(rgb_serialize);
 	state["level"] = number;
-	state["map"] = luwra::FieldVector {};
-	state.runFile(map_directory+"map.lua");
-	if (state.runFile(filename) != 0) {
-		if (state.runFile(map_directory+"map1.lua") == 0) {
+	state["map"] = luwra::MemberMap {};
+	state.runFile((map_directory+"map.lua").c_str());
+	if (state.runFile(filename.c_str()) != 0) {
+		if (state.runFile((map_directory+"map1.lua").c_str()) == 0) {
 			number = 1;
 			printf("Info: Using file map1.lua as map file, because there is no %s file.\n",  filename.c_str());
 		}
@@ -237,25 +238,25 @@ string get_node(int x, int y) {
 	return map_obj->nodes[x][y];
 }
 
-luwra::FieldVector get_node_pos(string name) {
-	luwra::FieldVector field_vector { std::pair<int, luwra::FieldVector> {0, {{"x", 0}, {"y", 0}}} };
+map<int, map<string, int> > get_node_pos(string name) {
+	map<int, map<string, int> > member_map { { 0, map<string, int> { {"x", 0}, {"y", 0} } } };
 	for (int x = 0 ; x < map_obj->nodes.size() ; x++) {
 		for (int y = 0 ; y < map_obj->nodes[x].size() ; y++) {
 			if (map_obj->nodes[x][y] == name)
-				field_vector.push_back(std::pair<int, luwra::FieldVector> {field_vector.size(), {{"x", x}, {"y", y}}});
+				member_map[member_map.size()] = { {"x", x}, {"y", y} };
 		}
 	}
-	return field_vector;
+	return member_map;
 }
-luwra::FieldVector get_node_screen_pos(string name) {
-	luwra::FieldVector field_vector { std::pair<int, luwra::FieldVector> {0, {{"x", 0}, {"y", 0}}} };
+map<int, map<string, int> > get_node_screen_pos(string name) {
+	map<int, map<string, int> > member_map { { 0, map<string, int> { {"x", 0}, {"y", 0} } } };
 	for (int x = map_obj->map_struct.pos_x ; x < map_obj->map_struct.width+map_obj->map_struct.pos_x ; x++) {
 		for (int y = map_obj->map_struct.pos_y ; y < map_obj->map_struct.height+map_obj->map_struct.pos_y ; y++) {
 			if (map_obj->nodes[x][y] == name)
-				field_vector.push_back(std::pair<int, luwra::FieldVector> {field_vector.size(), {{"x", x}, {"y", y}}});
+				member_map[member_map.size()] = { {"x", x}, {"y", y} };
 		}
 	}
-	return field_vector;
+	return member_map;
 }
 
 int next_map() {

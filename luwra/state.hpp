@@ -64,9 +64,9 @@ struct StateWrapper: Table {
 	 */
 	template <typename T> inline
 	void registerUserType(
-		const std::string& ctor_name,
-		const FieldVector& methods = FieldVector(),
-		const FieldVector& meta_methods = FieldVector()
+		const char* ctor_name,
+		const MemberMap& methods = MemberMap(),
+		const MemberMap& meta_methods = MemberMap()
 	) {
 		::luwra::registerUserType<T>(state, ctor_name, methods, meta_methods);
 	}
@@ -75,16 +75,16 @@ struct StateWrapper: Table {
 	 * Execute a piece of code.
 	 */
 	inline
-	int runString(const std::string& code) {
-		return luaL_dostring(state, code.c_str());
+	int runString(const char* code) {
+		return luaL_dostring(state, code);
 	}
 
 	/**
 	 * Execute a file.
 	 */
 	inline
-	int runFile(const std::string& filepath) {
-		return luaL_dofile(state, filepath.c_str());
+	int runFile(const char* filepath) {
+		return luaL_dofile(state, filepath);
 	}
 };
 

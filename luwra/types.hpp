@@ -16,6 +16,10 @@
 #include <type_traits>
 #include <memory>
 #include <limits>
+#include <vector>
+#include <list>
+#include <initializer_list>
+#include <map>
 
 LUWRA_NS_BEGIN
 
@@ -29,7 +33,7 @@ using CFunction = lua_CFunction;
  * User type
  */
 template <typename T>
-struct Value: Value<T&> {};
+struct Value;
 
 // Nil
 template <>
@@ -46,6 +50,16 @@ struct Value<std::nullptr_t> {
 		return 1;
 	}
 };
+
+template <>
+struct Value<State*> {
+	static inline
+	State* read(State* state, int n) {
+		luaL_checktype(state, n, LUA_TTHREAD);
+		return lua_tothread(state, n);
+	}
+};
+
 /**
  * Convenient wrapped for [Value<T>::push](@ref Value<T>::push).
  */
@@ -58,7 +72,7 @@ size_t push(State* state, T&& value) {
 /**
  * Allows you to push multiple values at once.
  */
-template <typename T1, typename T2, typename... TR>
+template <typename T1, typename T2, typename... TR> static inline
 size_t push(State* state, T1&& value, T2&& head, TR&&... rest) {
 	return
 		push(state, std::forward<T1>(value)) +
@@ -248,8 +262,8 @@ namespace internal {
 
 	// Implementation of a reference which takes care of the lifetime of a Lua reference
 	struct ReferenceImpl {
-		State* const state;
-		const int ref;
+		State* state;
+		int ref;
 		bool autoUnref = true;
 
 		// Reference a value at an index.
@@ -272,6 +286,8 @@ namespace internal {
 		// Lua reference.
 		ReferenceImpl(const ReferenceImpl& other) = delete;
 		ReferenceImpl(ReferenceImpl&& other) = delete;
+		ReferenceImpl& operator =(const ReferenceImpl&) = delete;
+		ReferenceImpl& operator =(ReferenceImpl&&) = delete;
 
 		inline
 		~ReferenceImpl() {
@@ -281,7 +297,7 @@ namespace internal {
 		// Small shortcut to make the `push`-implementations for `Table` and `Reference` consistent,
 		// since both use this struct internally.
 		inline
-		size_t push(State* targetState) {
+		size_t push(State* targetState) const {
 			lua_rawgeti(state, LUA_REGISTRYINDEX, ref);
 
 			if (state != targetState)
@@ -291,13 +307,13 @@ namespace internal {
 		}
 
 		inline
-		size_t push() {
+		size_t push() const {
 			lua_rawgeti(state, LUA_REGISTRYINDEX, ref);
 			return 1;
 		}
 	};
 
-	using SharedReferenceImpl = std::shared_ptr<internal::ReferenceImpl>;
+	using SharedReferenceImpl = std::shared_ptr<const internal::ReferenceImpl>;
 }
 
 /**
@@ -326,7 +342,7 @@ struct Reference {
 	 * Read the referenced value.
 	 */
 	template <typename T> inline
-	T read() {
+	T read() const {
 		size_t pushed = impl->push();
 		T ret = Value<T>::read(impl->state, -1);
 
@@ -338,7 +354,7 @@ struct Reference {
 	 * Shortcut for `read<T>()`.
 	 */
 	template <typename T> inline
-	operator T() {
+	operator T() const {
 		return read<T>();
 	}
 };
@@ -410,29 +426,18 @@ namespace internal {
 	struct PushableI {
 		virtual
 		size_t push(State* state) const = 0;
-
-		virtual
-		PushableI* copy() const = 0;
-
-		virtual
-		~PushableI() {}
 	};
 
 	template <typename T>
 	struct PushableT: virtual PushableI {
 		T value;
 
-		inline
-		PushableT(T value): value(value) {}
+		template <typename P> inline
+		PushableT(P&& value): value(std::forward<P>(value)) {}
 
 		virtual
 		size_t push(State* state) const {
 			return luwra::push(state, value);
-		}
-
-		virtual
-		PushableI* copy() const {
-			return new PushableT<T>(value);
 		}
 	};
 }
@@ -440,33 +445,17 @@ namespace internal {
 /**
  * A value which may be pushed onto the stack.
  */
-struct Pushable: virtual internal::PushableI {
-	internal::PushableI* interface;
+struct Pushable {
+	std::shared_ptr<internal::PushableI> interface;
 
 	template <typename T> inline
-	Pushable(T value): interface(new internal::PushableT<T>(value)) {}
+	Pushable(T&& value):
+		interface(new internal::PushableT<T>(std::forward<T>(value)))
+	{}
 
 	inline
-	Pushable(Pushable&& other): interface(other.interface) {
-		other.interface = nullptr;
-	}
-
-	Pushable(const Pushable& other): interface(other.interface->copy()) {}
-
-	virtual
-	size_t push(State* state) const {
-		return interface->push(state);
-	}
-
-	virtual
-	internal::PushableI* copy() const {
-		return new Pushable(*this);
-	}
-
-	virtual
-	~Pushable() {
-		if (interface)
-			delete interface;
+	bool operator <(const Pushable& other) const {
+		return interface < other.interface;
 	}
 };
 
@@ -474,7 +463,67 @@ template <>
 struct Value<Pushable> {
 	static inline
 	size_t push(State* state, const Pushable& value) {
-		return value.push(state);
+		return value.interface->push(state);
+	}
+};
+
+template <typename T>
+struct Value<std::vector<T>> {
+	static inline
+	size_t push(State* state, const std::vector<T>& vec) {
+		lua_createtable(state, vec.size(), 0);
+
+		int size = static_cast<int>(vec.size());
+		for (int i = 0; i < size; i++) {
+			size_t pushedValues = luwra::push(state, vec[i]);
+			if (pushedValues > 1)
+				lua_pop(state, static_cast<int>(pushedValues - 1));
+
+			lua_rawseti(state, -2, i + 1);
+		}
+
+		return 1;
+	}
+};
+
+template <typename T>
+struct Value<std::list<T>> {
+	static inline
+	size_t push(State* state, const std::list<T>& lst) {
+		lua_createtable(state, lst.size(), 0);
+
+		int i = 0;
+		for (const T& item: lst) {
+			size_t pushedValues = luwra::push(state, item);
+			if (pushedValues > 1)
+				lua_pop(state, static_cast<int>(pushedValues - 1));
+
+			lua_rawseti(state, -2, ++i);
+		}
+
+		return 1;
+	}
+};
+
+template <typename K, typename V>
+struct Value<std::map<K, V>> {
+	static inline
+	size_t push(State* state, const std::map<K, V>& map) {
+		lua_createtable(state, 0, map.size());
+
+		for (const auto& entry: map) {
+			size_t pushedKeys = luwra::push(state, entry.first);
+			if (pushedKeys > 1)
+				lua_pop(state, static_cast<int>(pushedKeys - 1));
+
+			size_t pushedValues = luwra::push(state, entry.second);
+			if (pushedValues > 1)
+				lua_pop(state, static_cast<int>(pushedValues - 1));
+
+			lua_rawset(state, -3);
+		}
+
+		return 1;
 	}
 };
 

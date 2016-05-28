@@ -48,9 +48,9 @@ void setMetatable(State* state, const char* name) {
  * \param value Global value
  */
 template <typename V> static inline
-void setGlobal(State* state, const std::string& name, V&& value) {
+void setGlobal(State* state, const char* name, V&& value) {
 	push(state, std::forward<V>(value));
-	lua_setglobal(state, name.c_str());
+	lua_setglobal(state, name);
 }
 
 /**
@@ -60,8 +60,8 @@ void setGlobal(State* state, const std::string& name, V&& value) {
  * \returns Value associated with the given name
  */
 template <typename V> static inline
-V getGlobal(State* state, const std::string& name) {
-	lua_getglobal(state, name.c_str());
+V getGlobal(State* state, const char* name) {
+	lua_getglobal(state, name);
 
 	V instance = read<V>(state, -1);
 	lua_pop(state, 1);
@@ -103,9 +103,9 @@ void setFields(State* state, int index, R&&... args) {
 }
 
 /**
- * A collection of key-value pairs.
+ * Map of members
  */
-using FieldVector = std::vector<std::pair<Pushable, Pushable>>;
+using MemberMap = std::map<Pushable, Pushable>;
 
 /**
  * Apply key-value pairs to a table.
@@ -114,29 +114,22 @@ using FieldVector = std::vector<std::pair<Pushable, Pushable>>;
  * \param fields Table fields
  */
 static inline
-void setFields(State* state, int index, const FieldVector& fields) {
+void setFields(State* state, int index, const MemberMap& fields) {
 	if (index < 0)
 		index = lua_gettop(state) + (index + 1);
 
-	for (const auto& pair: fields) {
-		pair.first.push(state);
-		pair.second.push(state);
+	for (const auto& entry: fields) {
+		size_t pushedKeys = luwra::push(state, entry.first);
+		if (pushedKeys > 1)
+			lua_pop(state, static_cast<int>(pushedKeys - 1));
+
+		size_t pushedValues = luwra::push(state, entry.second);
+		if (pushedValues > 1)
+			lua_pop(state, static_cast<int>(pushedValues - 1));
+
 		lua_rawset(state, index);
 	}
 }
-
-template <>
-struct Value<FieldVector> {
-	/**
-	 * Pushing a FieldVector will create a new table with the given fields.
-	 */
-	static inline
-	size_t push(State* state, const FieldVector& fields) {
-		lua_newtable(state);
-		setFields(state, -1, fields);
-		return 1;
-	}
-};
 
 /**
  * Retrieve a field from a table.
