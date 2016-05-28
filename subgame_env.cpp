@@ -61,6 +61,10 @@ void register_node(string name, luwra::Table nodedef) {
 	env_obj->registered_nodes.push_back(node);
 }
 
+void register_at_exit(luwra::NativeFunction<void> lua_function) {
+	env_obj->functions_at_exit.push_back(new function<void(void)>(lua_function));
+}
+
 Env::Env(SDL_Window* sdl_window, int displayed_x, int displayed_y, const string subgame_name) : subgame_name(subgame_name) {
 	env_obj = this;
 	
@@ -79,6 +83,11 @@ Env::~Env() {
 	for (int i = 0 ; i < registered_nodes.size() ; i++) {
 		delete registered_nodes[i];
 	}
+	
+	for (int i = 0 ; i < functions_at_exit.size() ; i++) {
+		(*functions_at_exit[i])();
+		delete functions_at_exit[i];
+	}
 }
 
 void Env::add_function(string name, lua_CFunction function) {
@@ -89,6 +98,7 @@ void Env::load() {
 	// Run init.lua file
 	add_function("RGB", LUWRA_WRAP(rgb_serialize));
 	add_function("register_node", LUWRA_WRAP(register_node));
+	add_function("register_at_exit", LUWRA_WRAP(register_at_exit));
 	
 	if (state.runFile("subgames/"+subgame_name+"/"+INIT_FILE) != 0) {
 		fprintf(stderr, "Error: Unable to load file %s.\n", ("subgames/"+subgame_name+"/"+INIT_FILE).c_str());

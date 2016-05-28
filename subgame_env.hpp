@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -33,6 +34,7 @@ class Node {
 };
 
 void register_node(string name, luwra::Table nodedef);
+void register_at_exit(luwra::NativeFunction<void> lua_function);
 
 class Env {
 	public:
@@ -50,7 +52,10 @@ class Env {
 	luwra::StateWrapper state; // The luwra state wrapper
 	int width, height; // The node width and height in pixels
 	
+	vector<function<void(void)>* > functions_at_exit;
+	
 	
 	friend void register_node(string name, luwra::Table nodedef);
+	friend void register_at_exit(luwra::NativeFunction<void> function);
 };
 
