@@ -9,6 +9,7 @@
 #include "main.hpp"
 #include "subgame_env.hpp"
 #include "callback.hpp"
+#include "menu.hpp"
 
 void event_loop(Callbacks& callbacks, Map& map) {
 	SDL_Event event;
@@ -31,11 +32,10 @@ void event_loop(Callbacks& callbacks, Map& map) {
 }
 
 int main(int argc, char* argv[]) {
-	/* Get subgame name */
-	if (argc <= 1) {
-		cout << "Syntax: " << argv[0] << " <subgame_folder>" << endl;
-		return EXIT_FAILURE;
-	}
+	/*
+	Menu
+	*/
+	const string subgame = menu::print(argv[1]);
 	
 	/*
 	Load SDL lib
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 	/*
 	Load game
 	*/
-	Map map(window, string(argv[1])); // Load map
+	Map map(window, subgame); // Load map
 	Env* env = map.get_env();
 	Callbacks callbacks(env);
 	env->load();
