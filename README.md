@@ -8,18 +8,19 @@ Subgames are written in Lua. They have to be in the `subgames` folder.
 
 ## How to compile and run Upsilon ?
 
-On a GNU/Linux operating system you can do:
+On a GNU/Linux operating system you can do:  
 ```
-$ sudo apt-get install libsdl2-dev libsdl2-image-dev git
-$ git clone https://github.com/paly2/upsilon
+$ wget https://github.com/paly2/upsilon/archives/master.tar.gz -O upsilon.tar.gz
+$ tar zxf upsilon.tar.gz
 $ cd upsilon
-$ ./compile.sh
+$ chmod +x install.sh
+$ sudo ./install.sh
 ```
 
-I think Upsilon is compilable on a Microsoft Windows operating system, but sorry, I don't know how. If someone succeded to do this, please contact me by e-mail or open an issue.
+I guess Upsilon is compilable on a Microsoft Windows operating system, but sorry, I don't know how. If someone succeded to do this, please contact me by e-mail or open an issue.
 
 
-To run Upsilon, you have to give at least one argument: the subgame name (which is the subgame folder name).  
+To run Upsilon, you may give one argument: the subgame name (which is the subgame folder name). If you don't, Upsilon will ask you the subgame you want to use.  
 For example:
 ```
 $ ./upsilon mario_sokoban
