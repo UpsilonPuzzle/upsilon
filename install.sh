@@ -5,11 +5,14 @@ if [ $? != 0 ]; then
 	exit
 fi
 
+cd src
 wget http://www.lua.org/ftp/lua-5.3.2.tar.gz
-tar zxf lua-5.3.2.tar.gz -C lua
+tar zxf lua-5.3.2.tar.gz
 rm lua.tar.gz
+mv lua-5.3.2 lua
 cd lua
 make generic -j`nproc`
 make install
+cd ../..
 echo "Compiling upsilon..."
-g++ *.cpp -llua -ldl -lSDL2 -lSDL2_image -g -std=c++0x -o upsilon
+g++ src/*.cpp -llua -ldl -lSDL2 -lSDL2_image -g -std=c++0x -o upsilon
