@@ -1,0 +1,6 @@
+[submodule "subgames/mario_sokoban"]
+	path = subgames/mario_sokoban
+	url = https://github.com/UpsilonPuzzle/mario_sokoban.git
+[submodule "subgames/mario_sokoban_level_editor"]
+	path = subgames/mario_sokoban_level_editor
+	url = https://github.com/UpsilonPuzzle/mario_sokoban_level_editor.git
