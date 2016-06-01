@@ -10,8 +10,8 @@ Subgames are written in Lua. They have to be in the `subgames` folder.
 
 On a GNU/Linux operating system you can do:  
 ```
-$ wget https://github.com/paly2/upsilon/archives/master.tar.gz -O upsilon.tar.gz
-$ tar zxf upsilon.tar.gz
+$ sudo apt-get install git # Note: git may be already installed.
+$ git clone https://github.com/UpsilonPuzzle/upsilon.git --recursive
 $ cd upsilon
 $ chmod +x install.sh
 $ sudo ./install.sh
