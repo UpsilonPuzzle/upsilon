@@ -8,15 +8,39 @@ Subgames are written in Lua. They have to be in the `subgames` folder.
 
 ## How to compile and run Upsilon ?
 
-On a GNU/Linux operating system you can do:  
+On a GNU/Linux operating system you can do: 
+ 
+Install sdl 2
+```
+$ sudo apt-get install libsdl2-dev libsdl2-image-dev
+```
+
+Install lua 5.3
+```
+$ sudo apt-get install liblua5.3-0 liblua5.3-dev
+```
+
+Or install by sources
+```
+$ wget http://www.lua.org/ftp/lua-5.3.2.tar.gz
+$ tar zxf lua-5.3.2.tar.gz
+$ rm lua-5.3.2.tar.gz
+$ mv lua-5.3.2 lua
+$ cd lua
+$ make generic -j`nproc`
+$ sudo make install
+```
+
+Install git
 ```
 $ sudo apt-get install git
+```
+
+Clone and compile upsilon
+```
 $ git clone https://github.com/UpsilonPuzzle/upsilon.git --recursive
 $ cd upsilon
-$ chmod +x install_dep.sh
-$ sudo ./install_dep.sh
-$ chmod +x compile.sh
-$ ./compile.sh
+$ g++ src/*.cpp -llua -ldl -lSDL2 -lSDL2_image -g -std=c++0x -o upsilon
 ```
 
 I guess Upsilon is compilable on a Microsoft Windows operating system, but sorry, I don't know how. If someone succeded to do this, please contact me by e-mail or open an issue.
