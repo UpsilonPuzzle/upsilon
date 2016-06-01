@@ -11,7 +11,7 @@
 #include "callback.hpp"
 #include "menu.hpp"
 
-void event_loop(Callbacks& callbacks, Map& map) {
+void event_loop(Callbacks::Callbacks& callbacks, Map::Map& map) {
 	SDL_Event event;
 	
 	while (true) {
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 	/*
 	Menu
 	*/
-	const string subgame = menu::print(argv[1]);
+	const std::string subgame = menu::print(argv[1]);
 	
 	/*
 	Load SDL lib
@@ -74,9 +74,9 @@ int main(int argc, char* argv[]) {
 	/*
 	Load game
 	*/
-	Map map(window, subgame); // Load map
-	Env* env = map.get_env();
-	Callbacks callbacks(env);
+	Map::Map map(window, subgame); // Load map
+	Env::Env* env = map.get_env();
+	Callbacks::Callbacks callbacks(env);
 	env->load();
 	map.draw();
 	
