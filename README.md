@@ -10,11 +10,11 @@ Subgames are written in Lua. They have to be in the `subgames` folder.
 
 On a GNU/Linux operating system you can do:  
 ```
-$ sudo apt-get install git # Note: git may be already installed.
+$ sudo apt-get install libsdl2-dev libsdl2-image-dev git
 $ git clone https://github.com/UpsilonPuzzle/upsilon.git --recursive
 $ cd upsilon
-$ chmod +x install.sh
-$ sudo ./install.sh
+$ chmod +x compile.sh
+$ ./compile.sh
 ```
 
 I guess Upsilon is compilable on a Microsoft Windows operating system, but sorry, I don't know how. If someone succeded to do this, please contact me by e-mail or open an issue.

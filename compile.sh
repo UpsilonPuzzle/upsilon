@@ -1,10 +1,3 @@
-#!/bin/sh
-apt-get install libsdl2-dev libsdl2-image-dev -y
-if [ $? != 0 ]; then
-	echo "Error while executing apt-get."
-	exit
-fi
-
 cd src
 wget http://www.lua.org/ftp/lua-5.3.2.tar.gz
 tar zxf lua-5.3.2.tar.gz
