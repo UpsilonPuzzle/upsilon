@@ -154,6 +154,10 @@ namespace Map {
 		ADD_FUNCTION(get_node);
 		ADD_FUNCTION(get_node_pos);
 		ADD_FUNCTION(get_node_screen_pos);
+		ADD_FUNCTION(get_map_width);
+		ADD_FUNCTION(get_map_height);
+		ADD_FUNCTION(get_map_displayed_x);
+		ADD_FUNCTION(get_map_displayed_y);
 		ADD_FUNCTION(next_map);
 	}
 
@@ -266,6 +270,19 @@ namespace Map {
 			}
 		}
 		return member_map;
+	}
+	
+	int get_map_width() {
+		return map_obj->map_struct.width;
+	}
+	int get_map_height() {
+		return map_obj->map_struct.height;
+	}
+	int get_map_displayed_x() {
+		return map_obj->map_struct.displayed_x;
+	}
+	int get_map_displayed_y() {
+		return map_obj->map_struct.displayed_y;
 	}
 
 	int next_map() {

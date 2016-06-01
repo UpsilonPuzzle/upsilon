@@ -37,6 +37,11 @@ namespace Map {
 
 	std::map<int, std::map<std::string, int> > get_node_pos(std::string name);
 	std::map<int, std::map<std::string, int> > get_node_screen_pos(std::string name);
+	
+	int get_map_width();
+	int get_map_height();
+	int get_map_displayed_x();
+	int get_map_displayed_y();
 
 	int next_map();
 
@@ -76,6 +81,10 @@ namespace Map {
 		friend std::string get_node(int x, int y);
 		friend std::map<int, std::map<std::string, int> > get_node_pos(std::string name);
 		friend std::map<int, std::map<std::string, int> > get_node_screen_pos(std::string name);
+		friend int get_map_width();
+		friend int get_map_height();
+		friend int get_map_displayed_x();
+		friend int get_map_displayed_y();
 		friend int next_map();
 	};
 }
