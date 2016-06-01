@@ -10,9 +10,11 @@ Subgames are written in Lua. They have to be in the `subgames` folder.
 
 On a GNU/Linux operating system you can do:  
 ```
-$ sudo apt-get install libsdl2-dev libsdl2-image-dev git
+$ sudo apt-get install git
 $ git clone https://github.com/UpsilonPuzzle/upsilon.git --recursive
 $ cd upsilon
+$ chmod +x install_dep.sh
+$ sudo ./install_dep.sh
 $ chmod +x compile.sh
 $ ./compile.sh
 ```
